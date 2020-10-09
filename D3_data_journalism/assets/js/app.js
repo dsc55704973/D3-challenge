@@ -31,24 +31,24 @@ chartGroup
   .attr("text-anchor", "middle")
   .attr("font-size", "16px")
   .attr("fill", "green")
-  .text("Age vs. Income");
+  .text("Healthcare vs. Income");
 
 // load CSV
 d3.csv("../../data.csv").then(function(x) {
     console.log(x);
 
 // scatter plot
-// `age vs. income`
+// `healthcare vs. income`
 
   // cast the data from the csv as numbers
   x.forEach(function(data) {
     data.income = +data.income;
-    data.age = +data.age
+    data.healthcare = +data.healthcare
   });
 
   // xScale
   var xScale = d3.scaleLinear()
-    .domain(d3.extent(x, d => d.age))
+    .domain(d3.extent(x, d => d.healthcare))
     .range([0, svgWidth]);
 
   // yScale
@@ -70,26 +70,18 @@ d3.csv("../../data.csv").then(function(x) {
     .attr("stroke", "green")
     .call(yAxis);
 
+  // circle group
   var circlesGroup = chartGroup.selectAll("circle")
     .data(x)
     .enter()
     .append("circle")
-    .attr("cx", d => xScale(d.age))
+    .attr("cx", d => xScale(d.healthcare))
     .attr("cy", d => yScale(d.income))
     .attr("r", 10)
-    .attr("fill", "pink")
+    .attr("fill", "red")
     .attr("opacity", ".5");
 
-  // svg path element
-  svg
-    .append("path")
-    .attr("stroke", "black")
-    .attr("stroke-width", "1")
-    .attr("fill", "none")
-    .attr("d", createLine(x));
-
-  
-
+// error
 }).catch(function(error) {
   console.log(error);
 });
