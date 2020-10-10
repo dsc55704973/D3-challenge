@@ -96,14 +96,16 @@ function makeResponsive() {
       .attr("fill", "red")
       .attr("opacity", ".5");
 
-    // tooltip
-    var toolTip = d3.tip()
+/////////// TOOLTIP ////////////
+    var toolTip = d3
+      .select("#scatter")
+      .append("div")
+      .classed("tooltip", true)
       .attr("class", "tooltip")
-      .offset([0, 0])
       .html(function(d) {
-        return (`<strong>${dateFormatter(d.healthcare)}<strong><hr>${d.income}`);
+        return (`<strong>${d.healthcare}<strong><hr>${d.income}`);
       });
-    chartGroup.call(toolTip);
+    circlesGroup.call(toolTip);
 
   // error
   }).catch(function(error) {
