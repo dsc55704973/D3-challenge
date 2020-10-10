@@ -1,89 +1,117 @@
 
+// make responsive
+function makeResponsive() {
+  var svgArea = d3.select("body").select("svg");
+  if (!svgArea.empty()) {
+    svgArea.remove();
+  }
 
-// styling
-var svgWidth = 1000;
-var svgHeight = 500;
+  // styling
+  var svgWidth = window.innerWidth;
+  var svgHeight = window.innerHeight;
 
-var margin = {
-  top: 20,
-  right: 40,
-  bottom: 60,
-  left: 50
-};
+  var margin = {
+    top: 20,
+    right: 100,
+    bottom: 60,
+    left: 100
+  };
 
-var width = svgWidth - margin.left - margin.right;
-var height = svgHeight - margin.top - margin.bottom;
+  var width = svgWidth - margin.left - margin.right;
+  var height = svgHeight - margin.top - margin.bottom;
 
-// SVG element
-var svg = d3
-  .select("#scatter")
-  .append("svg")
-  .attr("width", svgWidth)
-  .attr("height", svgHeight);
+  // SVG element
+  var svg = d3
+    .select("#scatter")
+    .append("svg")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight);
 
-var chartGroup = svg.append("g")
-  .attr("transform", `translate(${margin.left}, ${margin.top})`);
+  var chartGroup = svg.append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-// chart label
-chartGroup
-  .append("text")
-  .attr("transform", `translate(${width / 2}, ${height + margin.top + 20})`)
-  .attr("text-anchor", "middle")
-  .attr("font-size", "16px")
-  .attr("fill", "green")
-  .text("Healthcare vs. Income");
+  // chart label
+  chartGroup
+    .append("text")
+    .attr("transform", `translate(${width / 2}, ${height + margin.top + 20})`)
+    .attr("text-anchor", "middle")
+    .attr("font-size", "16px")
+    .attr("fill", "green")
+    .text("Healthcare");
 
-// load CSV
-d3.csv("../../data.csv").then(function(x) {
-    console.log(x);
+  chartGroup.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x", -50 - (height / 2))
+    .attr("dy", "1em")
+    .attr("fill", "green")
+    .classed("axis-text", true)
+    .text("Income");
 
-// scatter plot
-// `healthcare vs. income`
+  // load CSV
+  d3.csv("../../data.csv").then(function(x) {
+      console.log(x);
 
-  // cast the data from the csv as numbers
-  x.forEach(function(data) {
-    data.income = +data.income;
-    data.healthcare = +data.healthcare
+  // scatter plot
+  // `healthcare vs. income`
+
+    // cast the data from the csv as numbers
+    x.forEach(function(data) {
+      data.income = +data.income;
+      data.healthcare = +data.healthcare
+    });
+
+    // xScale
+    var xScale = d3.scaleLinear()
+      .domain(d3.extent(x, d => d.healthcare))
+      .range([0, svgWidth]);
+
+    // yScale
+    var yScale = d3.scaleLinear()
+      .domain([0, d3.max(x, d => d.income)])
+      .range([svgHeight, 0]);
+
+    // axes
+    var xAxis = d3.axisBottom(xScale);
+    var yAxis = d3.axisLeft(yScale);
+
+    // x axis
+    chartGroup.append("g")
+      .attr("transform", `translate(0, ${height})`)
+      .call(xAxis);
+
+    // y axis
+    chartGroup.append("g")
+      .attr("stroke", "green")
+      .call(yAxis);
+
+    // circle group
+    var circlesGroup = chartGroup.selectAll("circle")
+      .data(x)
+      .enter()
+      .append("circle")
+      .attr("cx", d => xScale(d.healthcare))
+      .attr("cy", d => yScale(d.income))
+      .attr("r", 10)
+      .attr("fill", "red")
+      .attr("opacity", ".5");
+
+    // tooltip
+    var toolTip = d3.tip()
+      .attr("class", "tooltip")
+      .offset([0, 0])
+      .html(function(d) {
+        return (`<strong>${dateFormatter(d.healthcare)}<strong><hr>${d.income}`);
+      });
+    chartGroup.call(toolTip);
+
+  // error
+  }).catch(function(error) {
+    console.log(error);
   });
 
-  // xScale
-  var xScale = d3.scaleLinear()
-    .domain(d3.extent(x, d => d.healthcare))
-    .range([0, svgWidth]);
+};
 
-  // yScale
-  var yScale = d3.scaleLinear()
-    .domain([0, d3.max(x, d => d.income)])
-    .range([svgHeight, 0]);
-
-  // axes
-  var xAxis = d3.axisBottom(xScale);
-  var yAxis = d3.axisLeft(yScale);
-
-  // x axis
-  chartGroup.append("g")
-    .attr("transform", `translate(0, ${height})`)
-    .call(xAxis);
-
-  // y axis
-  chartGroup.append("g")
-    .attr("stroke", "green")
-    .call(yAxis);
-
-  // circle group
-  var circlesGroup = chartGroup.selectAll("circle")
-    .data(x)
-    .enter()
-    .append("circle")
-    .attr("cx", d => xScale(d.healthcare))
-    .attr("cy", d => yScale(d.income))
-    .attr("r", 10)
-    .attr("fill", "red")
-    .attr("opacity", ".5");
-
-// error
-}).catch(function(error) {
-  console.log(error);
-});
-
-
+// call makeResponsive 
+makeResponsive();
+d3.select(window).on("resize", makeResponsive);
