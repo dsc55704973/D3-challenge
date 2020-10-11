@@ -12,8 +12,8 @@ function makeResponsive() {
 
   var margin = {
     top: 20,
-    right: 100,
     bottom: 60,
+    right: 100,
     left: 100
   };
 
@@ -27,24 +27,29 @@ function makeResponsive() {
     .attr("width", svgWidth)
     .attr("height", svgHeight);
 
-  var chartGroup = svg.append("g")
+  // chartGroup
+  var chartGroup = svg
+    .append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-  // chart label
+  // axes labels
+  // x axis label
   chartGroup
     .append("text")
     .attr("transform", `translate(${width / 2}, ${height + margin.top + 20})`)
     .attr("text-anchor", "middle")
     .attr("font-size", "16px")
-    .attr("fill", "green")
+    .attr("fill", "purple")
     .text("Healthcare");
 
-  chartGroup.append("text")
+  // y axis label
+  chartGroup
+    .append("text")
     .attr("transform", "rotate(-90)")
     .attr("y", 0 - margin.left)
-    .attr("x", -50 - (height / 2))
+    .attr("x", -40 - (height / 2))
     .attr("dy", "1em")
-    .attr("fill", "green")
+    .attr("fill", "purple")
     .classed("axis-text", true)
     .text("Income");
 
@@ -62,31 +67,36 @@ function makeResponsive() {
     });
 
     // xScale
-    var xScale = d3.scaleLinear()
-      .domain(d3.extent(x, d=>d.healthcare))
-      .range([0, svgWidth]);
+    var xScale = d3
+      .scaleLinear()
+      .domain([0, d3.max(x, d=>d.healthcare)])
+      .range([0, width]);
 
     // yScale
-    var yScale = d3.scaleLinear()
+    var yScale = d3
+      .scaleLinear()
       .domain([0, d3.max(x, d=>d.income)])
-      .range([svgHeight, 0]);
+      .range([height, 0]);
 
     // axes
     var xAxis = d3.axisBottom(xScale);
     var yAxis = d3.axisLeft(yScale);
 
     // x axis
-    chartGroup.append("g")
+    chartGroup
+      .append("g")
       .attr("transform", `translate(0, ${height})`)
       .call(xAxis);
 
     // y axis
-    chartGroup.append("g")
-      .attr("stroke", "green")
+    chartGroup
+      .append("g")
+      .attr("stroke", "purple")
       .call(yAxis);
 
     // circle group
-    var circlesGroup = chartGroup.selectAll("circle")
+    var circlesGroup = chartGroup
+      .selectAll("circle")
       .data(x)
       .enter()
       .append("circle")
@@ -116,17 +126,6 @@ function makeResponsive() {
       .attr("font-size", "10px")
       .attr("text-anchor", "middle")
       .attr("fill", "white");
-
-/////////// TOOLTIP ////////////
-    // var toolTip = d3
-    //   .select("#scatter")
-    //   .append("div")
-    //   .classed("tooltip", true)
-    //   .attr("class", "tooltip")
-    //   .html(function(d) {
-    //     return (`<strong>${d.healthcare}<strong><hr>${d.income}`);
-    //   });
-    // circlesGroup.call(toolTip);
 
   // error
   }).catch(function(error) {
