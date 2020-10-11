@@ -63,12 +63,12 @@ function makeResponsive() {
 
     // xScale
     var xScale = d3.scaleLinear()
-      .domain(d3.extent(x, d => d.healthcare))
+      .domain(d3.extent(x, d=>d.healthcare))
       .range([0, svgWidth]);
 
     // yScale
     var yScale = d3.scaleLinear()
-      .domain([0, d3.max(x, d => d.income)])
+      .domain([0, d3.max(x, d=>d.income)])
       .range([svgHeight, 0]);
 
     // axes
@@ -96,16 +96,37 @@ function makeResponsive() {
       .attr("fill", "red")
       .attr("opacity", ".5");
 
+    var circleLabels = chartGroup
+      .selectAll(null)
+      .data(x)
+      .enter()
+      .append("text");
+
+    circleLabels
+      .attr("x", d=> {
+        return xScale(d.healthcare);
+      })
+      .attr("y", d=> {
+        return yScale(d.income);
+      })
+      .text(d=> {
+        return d.abbr;
+      })
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "10px")
+      .attr("text-anchor", "middle")
+      .attr("fill", "white");
+
 /////////// TOOLTIP ////////////
-    var toolTip = d3
-      .select("#scatter")
-      .append("div")
-      .classed("tooltip", true)
-      .attr("class", "tooltip")
-      .html(function(d) {
-        return (`<strong>${d.healthcare}<strong><hr>${d.income}`);
-      });
-    circlesGroup.call(toolTip);
+    // var toolTip = d3
+    //   .select("#scatter")
+    //   .append("div")
+    //   .classed("tooltip", true)
+    //   .attr("class", "tooltip")
+    //   .html(function(d) {
+    //     return (`<strong>${d.healthcare}<strong><hr>${d.income}`);
+    //   });
+    // circlesGroup.call(toolTip);
 
   // error
   }).catch(function(error) {
